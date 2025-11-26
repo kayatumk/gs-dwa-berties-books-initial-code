@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS books (
     price  DECIMAL(5, 2),
     PRIMARY KEY(id));
 
+# Create users table
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
