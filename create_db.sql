@@ -10,6 +10,16 @@ CREATE TABLE IF NOT EXISTS books (
     name   VARCHAR(50),
     price  DECIMAL(5, 2),
     PRIMARY KEY(id));
+    
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    firstname VARCHAR(50),
+    lastname VARCHAR(50),
+    email VARCHAR(100) UNIQUE NOT NULL,
+    hashedpassword TEXT NOT NULL
+);
+
 
 # Create the application user
 CREATE USER IF NOT EXISTS 'berties_books_app'@'localhost' IDENTIFIED BY 'qwertyuiop'; 

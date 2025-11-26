@@ -1,15 +1,31 @@
-// Create a new router
-const express = require("express")
-const router = express.Router()
+const express = require('express');
+const router = express.Router();
+const bcrypt = require('bcrypt');
 
-router.get('/register', function (req, res, next) {
-    res.render('register.ejs')
-})
+// Display registration form
+router.get('/register', (req, res) => {
+    res.render('register');
+});
 
-router.post('/registered', function (req, res, next) {
-    // saving data in database
-    res.send(' Hello '+ req.body.first + ' '+ req.body.last +' you are now registered!  We will send an email to you at ' + req.body.email);                                                                              
-}); 
+// Handle form submission
+router.post('/register', (req, res) => {
+    const { username, password, email } = req.body;
 
-// Export the router object so index.js can access it
-module.exports = router
+    const sql = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
+
+    // Use the global db connection
+    db.query(sql, [username, password, email], (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send("Database error");
+        }
+        res.redirect('/users/registered');
+    });
+});
+
+// Confirmation page
+router.get('/registered', (req, res) => {
+    res.render('registered');
+});
+
+module.exports = router;
