@@ -8,3 +8,9 @@ To install and run:
 
 npm install
 node index.js
+
+# dotenv
+
+To install : npm install dotenv
+
+Then use the command require('dotenv').config() at the top of index.js
