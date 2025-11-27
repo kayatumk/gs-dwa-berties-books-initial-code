@@ -4,6 +4,14 @@ const router = express.Router()
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
+const redirectLogin = (req, res, next) => {
+    if (!req.session.userId ) {
+      res.redirect('./login') // redirect to the login page
+    } else { 
+        next (); // move to the next middleware function
+    } 
+}
+
 router.get('/register', function (req, res, next) {
     res.render('register.ejs')
 })
@@ -41,7 +49,7 @@ router.post('/registered', function (req, res, next) {
 }); 
 });
 
-router.get('/listusers', (req, res) => {
+router.get('/listusers', redirectLogin, (req, res) => {
     const query = 'SELECT id, username, firstname, lastname, email, created_at FROM users'
     
     db.query(query, (err, result) => {
@@ -86,17 +94,27 @@ router.post('/loggedin', (req, res) => {
                 return res.status(500).send('Error during login')
             }
             else if (result == true) {
+                req.session.userId = req.body.username;
                 // Passwords match - successful login
-                res.send('Login successful! Welcome back, ' + username + '!')
+                res.send('Login successful! Welcome back, ' + username + '! <a href="./">Home</a>')
             }
             else {
                 // Passwords don't match
-                res.send('Login failed: Incorrect password')
+                res.send('Login failed: Incorrect password. <a href="./login">Login again</a>')
+
             }
         })
     })
 })
 
+router.get('/logout', (req, res) => {
+    req.session.destroy(err => {
+        if (err) {
+            return res.redirect('./listusers')
+        }
+        res.send('You have been logged out. <a href="./login">Login again</a')
+    })
+})
 
 // Export the router object so index.js can access it
 module.exports = router
