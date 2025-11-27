@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User List</title>
+</head>
+<body>
+    <h1>Registered Users</h1>
+    
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Created At</th>
+        </tr>
+        <% users.forEach(function(user) { %>
+        <tr>
+            <td><%= user.id %></td>
+            <td><%= user.username %></td>
+            <td><%= user.firstname %></td>
+            <td><%= user.lastname %></td>
+            <td><%= user.email %></td>
+            <td><%= user.created_at %></td>
+        </tr>
+        <% }); %>
+    </table>
+    
+    <br>
+    <a href="/">Back to Home</a>
+</body>
+</html>
