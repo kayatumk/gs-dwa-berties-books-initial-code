@@ -3,6 +3,7 @@ const express = require("express")
 const router = express.Router()
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
+const { check, validationResult } = require('express-validator');
 
 const redirectLogin = (req, res, next) => {
     if (!req.session.userId ) {
@@ -16,38 +17,44 @@ router.get('/register', function (req, res, next) {
     res.render('register.ejs')
 })
 
-router.post('/registered', function (req, res, next) {
-    // saving data in database
-    const plainPassword = req.body.password;
-    bcrypt.hash(plainPassword, saltRounds, function(err, hashedPassword) {
-    // Store hash in your password DB.
-        if (err) {
-            // Handle error
-            return res.status(500).send('Error hashing password')
+router.post('/registered',
+    [check('email').isEmail(),
+     check('username').isLength({ min: 5, max: 20 })],
+    function (req, res, next) {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.render('./register')
         }
-        
-        // Store hashed password in your database
-        const query = 'INSERT INTO users (username, firstname, lastname, email, hashedPassword) VALUES (?, ?, ?, ?, ?)'
-        
-        db.query(query, [
-            req.body.username,
-            req.body.firstname,
-            req.body.lastname,
-            req.body.email,
-            hashedPassword
-        ], (err, result) => {
-            if (err) {
-                console.log('Database error: ', err);
-                return res.status(500).send('Database error' + err.message);
-            }
-            let resultMessage = 'Hello ' + req.body.firstname + ' ' + req.body.lastname + ' you are now registered! We will send an email to you at ' + req.body.email
-            resultMessage += '<br>Your password is: ' + req.body.password + ' and your hashed password is: ' + hashedPassword
-            res.send(resultMessage) 
-    });
-
-        // Store hash in your password DB.                                                                            
-}); 
-});
+        else {
+            // REST OF YOUR CODE - the password hashing and database insertion
+            const plainPassword = req.body.password
+            
+            bcrypt.hash(plainPassword, saltRounds, function(err, hashedPassword) {
+                if (err) {
+                    return res.status(500).send('Error hashing password')
+                }
+                
+                const query = 'INSERT INTO users (username, firstname, lastname, email, hashedPassword) VALUES (?, ?, ?, ?, ?)'
+                
+                db.query(query, [
+                    req.body.username,
+                    req.body.first,
+                    req.body.last,
+                    req.body.email,
+                    hashedPassword
+                ], (err, result) => {
+                    if (err) {
+                        return res.status(500).send('Database error: ' + err.message)
+                    }
+                    
+                    let resultMessage = 'Hello ' + req.body.first + ' ' + req.body.last + ' you are now registered! We will send an email to you at ' + req.body.email
+                    resultMessage += '<br>Your password is: ' + req.body.password + ' and your hashed password is: ' + hashedPassword
+                    res.send(resultMessage)
+                })
+            })
+        }
+    }
+)
 
 router.get('/listusers', redirectLogin, (req, res) => {
     const query = 'SELECT id, username, firstname, lastname, email, created_at FROM users'
