@@ -1,6 +1,7 @@
 // Create a new router
 const express = require("express")
 const router = express.Router()
+const request = require('request')
 
 router.get('/search',function(req, res, next){
     res.render("search.ejs")
@@ -39,6 +40,30 @@ router.post('/bookadded', function (req, res, next) {
             res.send(' This book is added to database, name: '+ req.body.name + ' price '+ req.body.price)
     })
 }) 
+
+router.get('/weather',  function(req, res, next) {
+    // Weather route code will go here
+    let apiKey = process.env.WEATHER_API_KEY
+    let city = req.query.city || 'london'
+    let url = `http://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`
+                     
+    request(url, function (err, response, body) {
+        if(err){
+            res.render('weather.ejs', { error: 'Error fetching weather data' })
+        } else {
+            let weatherData = JSON.parse(body)
+
+            if (weatherData.cod == 200) {
+            // Success - render with weather data
+                res.render('weather.ejs', { weather: weatherData })
+            } else {
+                // City not found or API error
+                res.render('weather.ejs', { error: 'City not found. Please try again.' })
+            }
+
+          } 
+        });
+});
 
 
 // Export the router object so index.js can access it
